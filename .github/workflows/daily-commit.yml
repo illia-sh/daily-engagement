@@ -1,0 +1,44 @@
+name: Daily Contribution
+
+on:
+  schedule:
+    # Runs at random time between 0:00-23:59 UTC daily
+    - cron: '${{ random(0, 59) }} ${{ random(0, 23) }} * * *'
+  
+  # Allow manual trigger
+  workflow_dispatch:
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Checkout default branch
+          ref: ${{ github.event.repository.default_branch }}
+          fetch-depth: 1
+      
+      - name: Create random file and commit
+        env:
+          # IMPORTANT: Use your GitHub email to ensure commits count
+          GIT_EMAIL: ${{ github.actor }}@users.noreply.github.com
+          # Use your GitHub username
+          GIT_NAME: ${{ github.actor }}
+        run: |
+          # Generate current timestamp
+          timestamp=$(date +"%Y%m%d_%H%M%S")
+          
+          # Create a random file with timestamp
+          echo "Daily update $timestamp" > "daily_update_$timestamp.txt"
+          
+          # Configure git with YOUR email and name
+          git config --local user.email "$GIT_EMAIL"
+          git config --local user.name "$GIT_NAME"
+          
+          # Commit and push to default branch
+          git add .
+          git commit -m "Daily commit $timestamp"
+          git push origin ${{ github.event.repository.default_branch }}

@@ -1,4 +1,4 @@
-name: ASCII Art Contributions - ILLIA
+name: ASCII art contributions
 
 on:
   # Run multiple times per day to create the pattern
@@ -20,7 +20,7 @@ jobs:
           ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 1
       
-      - name: Create commits for ASCII art pattern
+      - name: Update files and create commits
         env:
           GIT_EMAIL: ${{ github.actor }}@users.noreply.github.com
           GIT_NAME: ${{ github.actor }}
@@ -29,20 +29,25 @@ jobs:
           git config --local user.email "$GIT_EMAIL"
           git config --local user.name "$GIT_NAME"
           
-          # Get current date info
-          current_date=$(date +"%Y-%m-%d")
-          current_hour=$(date +"%H")
-          
-          # Function to create a commit
+          # Function to create a commit by updating existing files
           create_commit() {
-            timestamp=$(date +"%Y%m%d_%H%M%S")
-            echo "ASCII Art Contribution - $timestamp" > "contribution_$timestamp.txt"
-            git add .
-            git commit -m "ASCII Art: ILLIA pattern - $timestamp"
+            # Update timestamp file
+            timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+            echo "Last Updated: $timestamp" > timestamp.txt
+            
+            # Update counter file with random stats
+            count=$((RANDOM % 1000))
+            echo "ASCII Art Pattern Stats" > stats.txt
+            echo "Timestamp: $timestamp" >> stats.txt
+            echo "Pattern: ILLIA" >> stats.txt
+            echo "Iteration: $count" >> stats.txt
+            echo "Status: Active" >> stats.txt
+            
+            git add timestamp.txt stats.txt
+            git commit -m "ASCII Art: ILLIA pattern update - $timestamp"
           }
           
-          # Create multiple commits based on the pattern needed
-          # This creates a denser pattern during "active" days
+          # Create multiple commits by updating the same files
           for i in {1..4}; do
             create_commit
             sleep 1

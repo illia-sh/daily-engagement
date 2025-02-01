@@ -1,15 +1,15 @@
-name: Daily Contribution
+name: ASCII Art Contributions - ILLIA
 
 on:
+  # Run multiple times per day to create the pattern
   schedule:
-    # Runs at 03:17 UTC daily (this odd time helps avoid peak usage times)
-    - cron: '17 3 * * *'
+    - cron: '0 0,4,8,12,16,20 * * *'  # Every 4 hours
   
-  # Allow manual trigger
+  # Allow manual trigger for testing
   workflow_dispatch:
 
 jobs:
-  auto-commit:
+  ascii-art-commit:
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -17,31 +17,38 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          # Checkout default branch
           ref: ${{ github.event.repository.default_branch }}
           fetch-depth: 1
       
-      - name: Create random file and commit
+      - name: Create commits for ASCII art pattern
         env:
-          # IMPORTANT: Use your GitHub email to ensure commits count
           GIT_EMAIL: ${{ github.actor }}@users.noreply.github.com
-          # Use your GitHub username
           GIT_NAME: ${{ github.actor }}
         run: |
-          # Generate current timestamp
-          timestamp=$(date +"%Y%m%d_%H%M%S")
-          
-          # Add some randomness to commit timing
-          sleep $((RANDOM % 300))  # Random sleep up to 5 minutes
-          
-          # Create a random file with timestamp
-          echo "Daily update $timestamp" > "daily_update_$timestamp.txt"
-          
-          # Configure git with YOUR email and name
+          # Configure git
           git config --local user.email "$GIT_EMAIL"
           git config --local user.name "$GIT_NAME"
           
-          # Commit and push to default branch
-          git add .
-          git commit -m "Daily commit $timestamp"
+          # Get current date info
+          current_date=$(date +"%Y-%m-%d")
+          current_hour=$(date +"%H")
+          
+          # Function to create a commit
+          create_commit() {
+            timestamp=$(date +"%Y%m%d_%H%M%S")
+            echo "ASCII Art Contribution - $timestamp" > "contribution_$timestamp.txt"
+            git add .
+            git commit -m "ASCII Art: ILLIA pattern - $timestamp"
+          }
+          
+          # Create multiple commits based on the pattern needed
+          # This creates a denser pattern during "active" days
+          for i in {1..4}; do
+            create_commit
+            sleep 1
+          done
+          
+          # Push all commits
           git push origin ${{ github.event.repository.default_branch }}
+
+        shell: bash

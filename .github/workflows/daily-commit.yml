@@ -2,8 +2,8 @@ name: Daily Contribution
 
 on:
   schedule:
-    # Runs at random time between 0:00-23:59 UTC daily
-    - cron: '${{ random(0, 59) }} ${{ random(0, 23) }} * * *'
+    # Runs at 03:17 UTC daily (this odd time helps avoid peak usage times)
+    - cron: '17 3 * * *'
   
   # Allow manual trigger
   workflow_dispatch:
@@ -30,6 +30,9 @@ jobs:
         run: |
           # Generate current timestamp
           timestamp=$(date +"%Y%m%d_%H%M%S")
+          
+          # Add some randomness to commit timing
+          sleep $((RANDOM % 300))  # Random sleep up to 5 minutes
           
           # Create a random file with timestamp
           echo "Daily update $timestamp" > "daily_update_$timestamp.txt"
